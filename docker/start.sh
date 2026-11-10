@@ -1,7 +1,8 @@
 #!/bin/sh
-set -e
+set -eu
 
 cd /var/www/html
+echo "boot: start port=${PORT:-10000}"
 
 mkdir -p storage/framework/cache/data \
     storage/framework/sessions \
@@ -17,17 +18,13 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-if [ -z "$APP_URL" ] && [ -n "$RENDER_EXTERNAL_URL" ]; then
+if [ -z "${APP_URL:-}" ] && [ -n "${RENDER_EXTERNAL_URL:-}" ]; then
     export APP_URL="$RENDER_EXTERNAL_URL"
 fi
 
-if [ -z "$APP_KEY" ]; then
-    php artisan key:generate --force
-fi
-
+echo "boot: migrate"
 php artisan migrate --force
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
 
-exec php artisan serve --host=0.0.0.0 --port="${PORT:-10000}"
+echo "boot: listen"
+cd public
+exec php -S "0.0.0.0:${PORT:-10000}" ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php
