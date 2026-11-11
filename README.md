@@ -123,11 +123,11 @@ Free-text DataTable search covers non-encrypted columns only (`analysis`, `instr
 ## Hosting notes (Render)
 
 - Service: `hari` · Docker · Free · URL: `https://hari-qs7r.onrender.com`
-- Blueprint: `render.yaml` (web + Postgres `hari-db`)
+- Blueprint: `render.yaml` (web only, `DB_CONNECTION=sqlite` — no Postgres)
+- **Demo data:** SQLite is wiped on every redeploy (fine for dummy data).
 - **Data safety:** boot runs only `php artisan migrate --force` (pending migrations). Never `migrate:fresh` / wipe.
-- **Persistent DB:** set `DB_CONNECTION=pgsql` + Postgres credentials. SQLite on Render is blocked (data would vanish each deploy).
-- Keep a **stable `APP_KEY`** in Render env (do not regenerate) so encrypted fields stay readable.
-- Free Render Postgres can expire; use paid Postgres or external MySQL/Postgres for lasting data.
+- For lasting data later: add Render/external Postgres and set `DB_CONNECTION=pgsql` + credentials.
+- Keep a **stable `APP_KEY`** in Render env (do not regenerate) so sessions/login stay valid across deploys.
 - Optional: Background Worker `php artisan queue:work`; paid disk for `storage/app` (imports/logos)
 
 ---

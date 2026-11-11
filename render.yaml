@@ -1,5 +1,6 @@
-# Render Blueprint — keeps app data on managed Postgres (survives Docker redeploys).
+# Render Blueprint — Free web + SQLite (dummy/demo data; wiped on each redeploy).
 # Docs: https://render.com/docs/blueprint-spec
+# No managed Postgres. Delete any existing free DB (e.g. hari-db) in the Render dashboard.
 services:
   - type: web
     name: hari
@@ -18,36 +19,10 @@ services:
       - key: LOG_CHANNEL
         value: stderr
       - key: DB_CONNECTION
-        value: pgsql
-      - key: DB_HOST
-        fromDatabase:
-          name: hari-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: hari-db
-          property: port
-      - key: DB_DATABASE
-        fromDatabase:
-          name: hari-db
-          property: database
-      - key: DB_USERNAME
-        fromDatabase:
-          name: hari-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: hari-db
-          property: password
+        value: sqlite
       - key: CACHE_STORE
         value: database
       - key: SESSION_DRIVER
         value: database
       - key: QUEUE_CONNECTION
         value: database
-
-databases:
-  - name: hari-db
-    plan: free
-    databaseName: hari
-    user: hari
