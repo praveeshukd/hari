@@ -19,15 +19,15 @@ if [ -n "${RENDER:-}" ] || [ -n "${RENDER_EXTERNAL_URL:-}" ]; then
     IS_RENDER=1
 fi
 
-# On Render, refuse ephemeral SQLite so redeploys cannot "look like" a wiped DB.
+# On Render, SQLite lives inside the container and is lost on every redeploy.
+# Prefer Postgres. Set STRICT_PERSISTENT_DB=1 to fail boot instead of warning.
 if [ "$IS_RENDER" -eq 1 ] && [ "$DB_CONNECTION" = "sqlite" ]; then
-    if [ "${ALLOW_EPHEMERAL_SQLITE:-0}" != "1" ]; then
-        echo "boot: ERROR — DB_CONNECTION=sqlite on Render loses data on every deploy."
-        echo "boot: Set DB_CONNECTION=pgsql (Render Postgres) or mysql, then redeploy."
-        echo "boot: To override temporarily set ALLOW_EPHEMERAL_SQLITE=1 (data still ephemeral)."
+    echo "boot: WARNING — DB_CONNECTION=sqlite on Render; data will not survive redeploys."
+    echo "boot: Switch to Render Postgres (DB_CONNECTION=pgsql) to keep live data."
+    if [ "${STRICT_PERSISTENT_DB:-0}" = "1" ]; then
+        echo "boot: ERROR — STRICT_PERSISTENT_DB=1 blocks sqlite boot."
         exit 1
     fi
-    echo "boot: WARNING — ALLOW_EPHEMERAL_SQLITE=1; SQLite data will not survive redeploys"
 fi
 
 # Only create a local sqlite file when explicitly using sqlite.
