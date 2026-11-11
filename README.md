@@ -122,17 +122,13 @@ Free-text DataTable search covers non-encrypted columns only (`analysis`, `instr
 
 ## Hosting notes (Render)
 
-- Service: `hari` · Docker · Free
-- URL: `https://hari-qs7r.onrender.com`
-- Env: `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY=...`
-- Startup: `docker/start.sh` waits for the configured DB, then runs `migrate --force` (pending migrations only — does **not** clear existing data)
-- Image build does **not** create or reset a database
-- Dockerfile includes `pdo_pgsql` for Render Postgres
-- Set `DB_CONNECTION=pgsql` (or `mysql`) + host/credentials to use an already-provisioned database
-- SQLite file is only created at runtime if `DB_CONNECTION=sqlite` and the file is missing
-- Free Render Postgres expires; use paid Postgres or an external DB for lasting data
-- Add a **Background Worker** with the same image running `php artisan queue:work`
-- Optional paid disk for `storage/app` (import files, logos)
+- Service: `hari` · Docker · Free · URL: `https://hari-qs7r.onrender.com`
+- Blueprint: `render.yaml` (web + Postgres `hari-db`)
+- **Data safety:** boot runs only `php artisan migrate --force` (pending migrations). Never `migrate:fresh` / wipe.
+- **Persistent DB:** set `DB_CONNECTION=pgsql` + Postgres credentials. SQLite on Render is blocked (data would vanish each deploy).
+- Keep a **stable `APP_KEY`** in Render env (do not regenerate) so encrypted fields stay readable.
+- Free Render Postgres can expire; use paid Postgres or external MySQL/Postgres for lasting data.
+- Optional: Background Worker `php artisan queue:work`; paid disk for `storage/app` (imports/logos)
 
 ---
 

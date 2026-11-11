@@ -13,9 +13,26 @@ mkdir -p storage/framework/cache/data \
 
 chmod -R ug+rwx storage bootstrap/cache database
 
+DB_CONNECTION="${DB_CONNECTION:-sqlite}"
+IS_RENDER=0
+if [ -n "${RENDER:-}" ] || [ -n "${RENDER_EXTERNAL_URL:-}" ]; then
+    IS_RENDER=1
+fi
+
+# On Render, refuse ephemeral SQLite so redeploys cannot "look like" a wiped DB.
+if [ "$IS_RENDER" -eq 1 ] && [ "$DB_CONNECTION" = "sqlite" ]; then
+    if [ "${ALLOW_EPHEMERAL_SQLITE:-0}" != "1" ]; then
+        echo "boot: ERROR — DB_CONNECTION=sqlite on Render loses data on every deploy."
+        echo "boot: Set DB_CONNECTION=pgsql (Render Postgres) or mysql, then redeploy."
+        echo "boot: To override temporarily set ALLOW_EPHEMERAL_SQLITE=1 (data still ephemeral)."
+        exit 1
+    fi
+    echo "boot: WARNING — ALLOW_EPHEMERAL_SQLITE=1; SQLite data will not survive redeploys"
+fi
+
 # Only create a local sqlite file when explicitly using sqlite.
 # External MySQL/Postgres must already exist — never wipe or recreate them.
-if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
+if [ "$DB_CONNECTION" = "sqlite" ]; then
     if [ ! -f database/database.sqlite ]; then
         touch database/database.sqlite
         chmod ug+rw database/database.sqlite
@@ -30,8 +47,12 @@ if [ -z "${APP_URL:-}" ] && [ -n "${RENDER_EXTERNAL_URL:-}" ]; then
     export APP_URL="$RENDER_EXTERNAL_URL"
 fi
 
+if [ -z "${APP_KEY:-}" ]; then
+    echo "boot: WARNING — APP_KEY is empty; set a stable APP_KEY in host env so encrypted data survives redeploys"
+fi
+
 wait_for_db() {
-    if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
+    if [ "$DB_CONNECTION" = "sqlite" ]; then
         return 0
     fi
 
@@ -62,9 +83,11 @@ wait_for_db() {
 
 wait_for_db
 
-# migrate --force only applies pending migrations; it does not drop/clear data.
-echo "boot: migrate"
-php artisan migrate --force
+# SAFE: migrate --force applies pending migrations only.
+# It never drops tables, truncates rows, or reseeds.
+# Never run migrate:fresh / migrate:refresh / db:wipe in this script.
+echo "boot: migrate (pending only; will not delete existing data)"
+php artisan migrate --force --no-interaction
 
 echo "boot: listen"
 cd public
