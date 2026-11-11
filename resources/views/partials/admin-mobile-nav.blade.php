@@ -21,10 +21,17 @@
             <span class="admin-mobile-nav-label">Users</span>
         </a>
     @else
-        <a href="{{ route('analysis.import') }}" class="admin-mobile-nav-item {{ request()->routeIs('analysis.import') ? 'is-active' : '' }}">
-            <span class="admin-mobile-nav-ico" aria-hidden="true">@include('partials.icons.nav', ['name' => 'box'])</span>
-            <span class="admin-mobile-nav-label">Import</span>
-        </a>
+        @if($canCreate)
+            <a href="{{ route('analysis.index', ['import' => 1]) }}" class="admin-mobile-nav-item {{ $active === 'analysis' && request()->boolean('import') ? 'is-active' : '' }}">
+                <span class="admin-mobile-nav-ico" aria-hidden="true">@include('partials.icons.nav', ['name' => 'box'])</span>
+                <span class="admin-mobile-nav-label">Import</span>
+            </a>
+        @else
+            <a href="{{ route('analysis.index') }}" class="admin-mobile-nav-item">
+                <span class="admin-mobile-nav-ico" aria-hidden="true">@include('partials.icons.nav', ['name' => 'box'])</span>
+                <span class="admin-mobile-nav-label">Sheet</span>
+            </a>
+        @endif
     @endif
 
     @if($canCreate)

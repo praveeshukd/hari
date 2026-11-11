@@ -54,7 +54,9 @@
             </summary>
             <div class="hdr-menu-panel">
                 <a href="{{ route('analysis.index') }}">Analysis sheet</a>
-                <a href="{{ route('analysis.import') }}">Import records</a>
+                @can('create', Modules\Analysis\Models\Analysis::class)
+                    <a href="{{ route('analysis.index', ['import' => 1]) }}">Import records</a>
+                @endcan
             </div>
         </details>
 

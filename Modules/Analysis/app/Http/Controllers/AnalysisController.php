@@ -217,7 +217,7 @@ class AnalysisController extends Controller
     {
         $this->authorize('create', Analysis::class);
 
-        return view('analysis.import');
+        return redirect()->route('analysis.index', ['import' => 1]);
     }
 
     public function import(ImportAnalysisRequest $request)

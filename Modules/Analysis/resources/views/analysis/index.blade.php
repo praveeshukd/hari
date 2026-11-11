@@ -97,7 +97,6 @@
                 Filter
                 <span class="filter-count" id="filter-count" hidden>0</span>
             </button>
-            <button type="button" class="inv-tool-icon" onclick="reloadAnalysisTable()" title="Refresh" aria-label="Refresh">↻</button>
         </div>
         <div class="inv-grid-toolbar-right">
             @if(empty($isTrash))
@@ -121,7 +120,7 @@
                         PDF (<span id="selected-count">0</span>)
                     </button>
                     @can('create', Modules\Analysis\Models\Analysis::class)
-                        <a href="{{ route('analysis.import') }}" class="inv-tool-btn" id="import-btn">Import</a>
+                        <a href="{{ route('analysis.index', ['import' => 1]) }}" class="inv-tool-btn" id="import-btn">Import</a>
                     @endcan
                 </div>
             @endif

@@ -97,7 +97,6 @@
                 Filter
                 <span class="filter-count" id="filter-count" hidden>0</span>
             </button>
-            <button type="button" class="inv-tool-icon" onclick="reloadAnalysisTable()" title="Refresh" aria-label="Refresh">↻</button>
         </div>
         <div class="inv-grid-toolbar-right">
             @if(empty($isTrash))
@@ -1078,7 +1077,7 @@ openImportModal();
 if (location.hash === '#settings') {
     openSettingsModal();
 }
-if (location.hash === '#import') {
+if (location.hash === '#import' || new URLSearchParams(location.search).get('import') === '1') {
     openImportModal();
 }
 function closeSettingsModal() {

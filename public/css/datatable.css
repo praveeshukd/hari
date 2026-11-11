@@ -339,6 +339,10 @@
   .inv-grid-toolbar-right {
     width: 100%;
   }
+
+  .inv-date-range {
+    display: none !important;
+  }
 }
 
 .sheet-toolbar {

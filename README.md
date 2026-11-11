@@ -74,7 +74,7 @@ First registered user becomes `admin`; later registrations default to `analyst`.
 | POST | `/analysis/bulk-result` | `analysis.bulk-result` |
 | GET | `/analysis/bulk-export` | `analysis.bulk-export` |
 | PATCH | `/analysis/{id}/quick-update` | `analysis.quick-update` |
-| GET/POST | `/analysis-import` | Queued import |
+| POST | `/analysis-import` | Queued import (modal on Analysis sheet) |
 | GET | `/users` | Admin role management |
 
 Trash view: `/analysis?trash=1` (admin).
