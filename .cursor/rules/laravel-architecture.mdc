@@ -1,0 +1,60 @@
+---
+description: Laravel clean architecture — SOLID, DDD modules, thin controllers
+alwaysApply: true
+---
+
+# Laravel Architecture Standards
+
+Follow SOLID, PSR-12, and Domain-Driven Design for business modules.
+
+## Layering
+
+| Layer | Responsibility | Location |
+| --- | --- | --- |
+| Controller | HTTP only; call Actions/Services | `app/Http/Controllers` |
+| Form Request | Validation + authorization input | `app/Http/Requests` |
+| Action | One business operation | `app/Domain/{Module}/Actions` |
+| Service | Multi-step workflows | `app/Domain/{Module}/Services` |
+| DTO | Structured data transfer | `app/Domain/{Module}/DTOs` |
+| Model | Persistence + relationships only | `app/Models` or domain Models |
+| Repository | Eloquent query boundary inside nWidart modules | `Modules/{Name}/app/Repositories` |
+| Shared repository | Common CRUD/soft-delete base interface + abstract Eloquent impl | `app/Repositories` |
+| Policy | Authorization | `app/Policies` |
+| Job | Background work | `app/Jobs` or domain Jobs |
+| Event/Listener | Decoupled side effects | `app/Events`, `app/Listeners` |
+
+## Hard rules
+
+- Keep controllers thin: no validation, queries, or business rules inline.
+- Prefer Actions for single operations; Services only when coordinating multiple Actions/steps.
+- Use DTOs instead of loose arrays between layers.
+- Use Form Requests for validation; Policies for authorization.
+- Wrap critical multi-write work in `DB::transaction()`.
+- Use Jobs for slow/async work; Events/Listeners for side effects.
+- Use Eloquent relationships; eager-load to avoid N+1.
+- Dependency-inject collaborators; no `new Service()` in controllers.
+- Avoid fat models. Use a module Repository (interface + Eloquent impl) for Analysis-style domains; skip repositories for trivial CRUD with no query logic.
+- Modules: use `nwidart/laravel-modules`. Business code lives under `Modules/Analysis`. Auth/Users stay in `App\`.
+- Shared persistence: extend `App\Repositories\RepositoryInterface` + `EloquentRepository` (`modelClass()`), then add module-specific methods (DTO `createFromData` / `updateFromData`, filters, metrics). Validate in Form Requests before Actions call the repository.
+- Never change business logic without tracing callers, jobs, events, and DB impact.
+- Handle domain failures with typed exceptions; map to HTTP in handlers when needed.
+- Add meaningful tests for Actions/Services (happy path + failure).
+
+## Before implementing a feature
+
+1. Analyze related models, controllers, services, jobs, tables, and routes.
+2. Explain the proposed approach briefly.
+3. Match existing conventions unless this architecture clearly improves them.
+4. Ship maintainable, production-ready code only.
+
+## Example shape
+
+```php
+// Thin controller
+public function store(StoreAnalysisRequest $request, CreateAnalysisAction $action)
+{
+    $analysis = $action->execute(CreateAnalysisData::fromRequest($request));
+
+    return redirect()->route('analysis.index');
+}
+```

@@ -1,0 +1,18 @@
+---
+description: PSR-12 and Laravel PHP conventions for app code
+globs: app/**/*.php,routes/**/*.php,database/**/*.php,tests/**/*.php
+alwaysApply: false
+---
+
+# PHP / Laravel Code Style
+
+- Follow PSR-12 (spacing, braces, imports, visibility).
+- Type-hint method params and return types; use `?Type` / unions where accurate.
+- Prefer constructor property promotion for injected dependencies.
+- Keep methods small and named after the business intent.
+- Prefer query scopes / dedicated Actions over dumping filters in controllers.
+- Eager load: `Model::with([...])->...` when relations are used in views/exports.
+- Prefer `updateOrCreate`, mass assignment via `$fillable`/`$guarded`, and casts on models.
+- Do not put authorization checks only in the UI; enforce in Policies/Form Requests.
+- Prefer explicit exception messages useful for logs; do not swallow exceptions empty.
+- When adding a module, place new business code under `app/Domain/{Module}/` first.

@@ -1,246 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>QC Analysis Dashboard – {{ config('app.name') }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
-    <style>
-        :root {
-            --bg:        #f8fafc;
-            --bg2:       #ffffff;
-            --bg3:       #f1f5f9;
-            --border:    #e2e8f0;
-            --border2:   #f1f5f9;
-            --text:      #0f172a;
-            --muted:     #64748b;
-            --faint:     #94a3b8;
-            --primary:   #0f766e;
-            --primary-h: #0d9488;
-            --success:   #10b981;
-            --danger:    #ef4444;
-            --warning:   #f59e0b;
-            --cyan:      #0284c7;
-            --grad:      linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #0284c7 100%);
-            --grad-card: #ffffff;
-        }
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px;}
-        a{color:inherit;text-decoration:none;}
+@extends('layouts.app')
 
-        /* ---- TOP NAV ---- */
-        .topbar{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;background:#ffffff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
-        .brand{display:flex;align-items:center;gap:.65rem;font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:700;}
-        .brand-icon{width:32px;height:32px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.9rem;color:#fff;box-shadow:0 2px 8px rgba(15,118,110,.25);}
-        .brand span{color:#0f172a;}
+@section('title', 'QC Analysis – ' . config('app.name'))
+@section('page_title', 'Analysis Sheet')
+@section('hide_footer', '1')
+@section('hide_nav_links', '1')
+@section('hide_navbar', '1')
 
-        /* ---- BUTTONS ---- */
-        .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.42rem .95rem;border-radius:7px;font-size:.78rem;font-weight:600;border:none;cursor:pointer;transition:all .2s ease;white-space:nowrap;text-decoration:none;}
-        .btn-primary{background:var(--grad);color:#fff;box-shadow:0 3px 10px rgba(15,118,110,.25);}
-        .btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px);}
-        .btn-pdf{background:linear-gradient(135deg,#e11d48,#be123c);color:#fff;box-shadow:0 3px 10px rgba(225,29,72,.25);}
-        .btn-pdf:hover{filter:brightness(1.1);transform:translateY(-1px);}
-        .btn-outline{background:#ffffff;color:var(--text);border:1px solid var(--border);}
-        .btn-outline:hover{background:var(--bg3);border-color:var(--primary);color:var(--primary);}
-        .btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;}
-        .btn-sm{padding:.32rem .75rem;font-size:.74rem;}
-        .btn-xs{padding:.22rem .55rem;font-size:.68rem;}
+@push('styles')
+<link href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="{{ asset('css/datatable.css') }}" rel="stylesheet">
+@endpush
 
-        /* ====================================================
-           FILTER PANEL
-        ==================================================== */
-        .filter-panel{
-            background:var(--bg2);
-            border-bottom:1px solid var(--border);
-            padding:.6rem 1.5rem .7rem;
-        }
-        .filter-row{
-            display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;
-        }
-        .filter-row + .filter-row{margin-top:.5rem;}
-
-        .panel-title{
-            font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700;
-            white-space:nowrap;margin-right:.25rem;display:flex;align-items:center;gap:.35rem;
-        }
-        .f-sep{width:1px;height:18px;background:var(--border);flex-shrink:0;margin:0 .2rem;}
-
-        /* Select dropdowns */
-        .f-select{
-            background:#ffffff;border:1px solid #cbd5e1;
-            border-radius:7px;color:var(--text);font-size:.73rem;
-            padding:.32rem .6rem;outline:none;cursor:pointer;
-            transition:border-color .2s,background .2s;
-            max-width:145px;
-        }
-        .f-select:focus{border-color:var(--primary);}
-        .f-select.active{border-color:var(--primary);background:#f0fdfa;color:var(--primary);font-weight:600;}
-
-        /* Text / date inputs */
-        .f-input{
-            background:#ffffff;border:1px solid #cbd5e1;
-            border-radius:7px;color:var(--text);font-size:.73rem;
-            padding:.32rem .6rem;outline:none;transition:.2s;font-family:'Inter',sans-serif;
-        }
-        .f-input:focus{border-color:var(--primary);}
-        .f-input.active{border-color:var(--primary);background:#f0fdfa;}
-
-        /* Search box */
-        .search-wrap{
-            display:flex;align-items:center;gap:.35rem;
-            background:#ffffff;border:1px solid #cbd5e1;
-            border-radius:7px;padding:.28rem .65rem;
-        }
-        .search-wrap.active{border-color:var(--primary);}
-        .search-wrap input{background:none;border:none;outline:none;color:var(--text);font-size:.73rem;width:160px;font-family:'Inter',sans-serif;}
-        .search-wrap input::placeholder{color:var(--faint);}
-
-        /* Active chips */
-        .chips-bar{
-            display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;
-            padding:.4rem 1.5rem;
-            background:#f1f5f9;border-bottom:1px solid var(--border);
-        }
-        .chip{
-            display:inline-flex;align-items:center;gap:.3rem;
-            background:#f0fdfa;border:1px solid #99f6e4;
-            color:var(--primary);border-radius:999px;
-            font-size:.68rem;font-weight:600;padding:.15rem .6rem;
-        }
-        .chip-remove{color:var(--primary);opacity:.7;font-size:.72rem;cursor:pointer;}
-        .chip-remove:hover{opacity:1;}
-
-        /* badge + alert */
-        .badge{display:inline-flex;align-items:center;padding:.18rem .55rem;border-radius:999px;font-size:.68rem;font-weight:700;}
-        .badge-pass{background:rgba(16,185,129,.12);color:#047857;border:1px solid rgba(16,185,129,.35);}
-        .badge-fail{background:rgba(239,68,68,.12);color:#b91c1c;border:1px solid rgba(239,68,68,.35);}
-        .badge-pending{background:rgba(245,158,11,.12);color:#b45309;border:1px solid rgba(245,158,11,.35);}
-
-        .alert{padding:.6rem 1.1rem;border-radius:8px;font-size:.8rem;margin:.5rem 1.5rem;display:flex;align-items:center;gap:.5rem;}
-        .alert-success{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#047857;}
-        .alert-danger{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#b91c1c;}
-        .form-errors{display:none;margin:0 0 .9rem;padding:.65rem .8rem;border-radius:8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#b91c1c;font-size:.78rem;}
-        .form-errors.show{display:block;}
-        .form-errors div+div{margin-top:.2rem;}
-
-        /* ====================================================
-           EXCEL TABLE
-        ==================================================== */
-        .sheet-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 200px);}
-        .sheet{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;}
-
-        .sheet th.chk-col, .sheet td.chk-col{width:36px;min-width:36px;text-align:center;background:#f8fafc;position:sticky;left:0;z-index:4;border-right:1px solid var(--border)!important;}
-        .sheet th.rn,.sheet td.rn{width:40px;min-width:40px;background:#f8fafc;color:var(--muted);font-weight:500;text-align:center;border-right:2px solid var(--border)!important;position:sticky;left:36px;z-index:4;font-size:10.5px;}
-
-        .sheet thead th{background:#f1f5f9;color:#334155;font-weight:600;padding:.5rem .65rem;border:1px solid #cbd5e1;white-space:nowrap;position:sticky;top:0;z-index:3;letter-spacing:.04em;font-size:10.5px;text-transform:uppercase;user-select:none;}
-        .sheet thead th.col-date{min-width:100px;}
-        .sheet thead th.col-name{min-width:130px;}
-        .sheet thead th.col-batch{min-width:95px;}
-        .sheet thead th.col-analysis{min-width:120px;}
-        .sheet thead th.col-pres{min-width:75px;}
-        .sheet thead th.col-col{min-width:105px;}
-        .sheet thead th.col-instr{min-width:100px;}
-        .sheet thead th.col-num{min-width:85px;}
-        .sheet thead th.col-purity{min-width:85px;}
-        .sheet thead th.col-result{min-width:85px;}
-        .sheet thead th.col-done{min-width:110px;}
-        .sheet thead th.col-rem{min-width:130px;}
-        .sheet thead th.col-actions{min-width:105px;position:sticky;right:0;z-index:5;background:#f8fafc;}
-
-        .sheet tbody tr{transition:background .12s;}
-        .sheet tbody tr:hover{background:rgba(15,118,110,.05);}
-        .sheet tbody tr.selected-row{background:rgba(225,29,72,.08)!important;}
-        .sheet tbody td{padding:0;border:1px solid var(--border);vertical-align:middle;}
-
-        .row-checkbox{accent-color:var(--danger);cursor:pointer;width:15px;height:15px;}
-
-        .cell{display:block;padding:.38rem .6rem;min-height:28px;outline:none;cursor:default;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;}
-        .cell[contenteditable="true"]{cursor:text;background:rgba(15,118,110,.08);border:2px solid var(--primary)!important;box-shadow:0 0 0 3px rgba(15,118,110,.15);white-space:normal;z-index:10;position:relative;}
-        .cell-num{text-align:right;font-variant-numeric:tabular-nums;}
-        .cell-purity{font-weight:700;color:var(--primary);text-align:right;font-variant-numeric:tabular-nums;}
-
-        td.col-actions{position:sticky;right:0;background:#ffffff;border-left:2px solid var(--border)!important;z-index:2;}
-        .action-btns{display:flex;gap:.28rem;padding:.22rem .35rem;justify-content:center;}
-
-        .empty-row td{text-align:center;padding:3.5rem;color:var(--faint);}
-        .empty-icon{font-size:2.5rem;margin-bottom:.75rem;}
-
-        .purity-high{color:#047857;}
-        .purity-mid {color:#b45309;}
-        .purity-low {color:#b91c1c;}
-
-        /* pagination */
-        .pagination-wrap{display:flex;align-items:center;gap:.4rem;padding:.65rem 1.5rem;background:#ffffff;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted);}
-        .pg-btn{padding:.28rem .6rem;border-radius:5px;background:#ffffff;border:1px solid #cbd5e1;color:var(--text);cursor:pointer;font-size:.72rem;}
-        .pg-btn:hover{background:#f1f5f9;border-color:var(--primary);color:var(--primary);}
-        .pg-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
-        .pg-btn:disabled{opacity:.4;cursor:default;}
-
-        /* modal */
-        .modal-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(15,23,42,.45);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
-        .modal-overlay.open{display:flex;}
-        .modal{background:#ffffff;border:1px solid var(--border);border-radius:14px;padding:1.65rem;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 45px rgba(0,0,0,.15);animation:fadeUp .22s ease;}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-        .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;}
-        .modal-title{font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;color:var(--text);}
-        .modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1;}
-        .modal-close:hover{color:var(--text);}
-        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
-        .form-full{grid-column:1/-1;}
-        .fld label{display:block;font-size:.7rem;font-weight:600;color:var(--muted);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.04em;}
-        .fld input,.fld select,.fld textarea{width:100%;background:#ffffff;border:1px solid #cbd5e1;border-radius:7px;color:var(--text);font-family:'Inter',sans-serif;font-size:.82rem;padding:.48rem .7rem;outline:none;transition:.2s;}
-        .fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(15,118,110,.15);}
-        .fld textarea{resize:vertical;min-height:55px;}
-        .purity-preview{background:#f0fdfa;border:1px solid #99f6e4;border-radius:7px;padding:.48rem .7rem;font-size:.85rem;color:var(--primary);font-weight:700;min-height:32px;display:flex;align-items:center;}
-        .view-value{background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;color:var(--text);font-size:.82rem;padding:.48rem .7rem;min-height:34px;white-space:pre-wrap;word-break:break-word;}
-        .modal-footer{display:flex;justify-content:flex-end;gap:.65rem;margin-top:1.1rem;}
-
-        ::-webkit-scrollbar{width:6px;height:6px;}
-        ::-webkit-scrollbar-track{background:var(--bg);}
-        ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-    </style>
-    <link href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" rel="stylesheet">
-    <link href="{{ asset('css/datatable.css') }}" rel="stylesheet">
-</head>
-<body>
-
+@section('content')
+@php
+    $sheetStats = $sheetStats ?? ['total' => 0, 'passed' => 0, 'failed' => 0, 'pending' => 0];
+@endphp
 <div class="admin-wrapper">
-
     @include('partials.admin-sidebar', ['active' => 'analysis'])
-
     <x-admin-header title="Analysis Sheet" search-mode="focus" />
-
-    <main class="admin-main">
-
-{{-- ============================================================
-     YAJRA DATA SHEET
-============================================================ --}}
-<div class="sheet-card" id="datasheet">
-<form id="filter-form" autocomplete="off" onsubmit="return false;">
-    <div class="sheet-toolbar">
-        <div class="sheet-toolbar-top">
-            <div class="sheet-title">
-                <h2>Data Sheet</h2>
-                <p>Sort, search, and page on the server. Double-click a cell to edit it, or use View for the full record.</p>
-            </div>
-            <div class="sheet-toolbar-actions">
-                <button type="button" class="sheet-btn sheet-btn-pdf" id="export-pdf-btn" onclick="submitPdfExport()">
-                    Export PDF (<span id="selected-count">0</span>)
-                </button>
-                <button type="button" class="sheet-btn" id="export-btn" onclick="exportExcel()">Export Excel</button>
-                <a href="{{ route('analysis.import') }}" class="sheet-btn" id="import-btn">Import</a>
-                <button type="button" onclick="openAddModal()" class="sheet-btn sheet-btn-primary" id="add-new-btn">Add Row</button>
-            </div>
+    <main class="admin-main inv-sheet">
+        <div class="inv-sheet-head">
+            <nav class="inv-sheet-crumb" aria-label="Breadcrumb">
+                <a href="{{ route('dashboard') }}">Dashboard</a>
+                <span aria-hidden="true">/</span>
+                <span>{{ !empty($isTrash) ? 'Trash' : 'Analysis' }}</span>
+            </nav>
+            @if(empty($isTrash))
+                @can('create', Modules\Analysis\Models\Analysis::class)
+                    <button type="button" onclick="openAddModal()" class="inv-sheet-create" id="add-new-btn">+ Create</button>
+                @endcan
+            @else
+                <a href="{{ route('analysis.index') }}" class="inv-sheet-create">Back to sheet</a>
+            @endif
         </div>
 
-        <div class="sheet-filters">
-            <button type="button" class="sheet-btn" id="open-filter-btn" onclick="openFilterModal()">
-                Search
+        @if(empty($isTrash))
+        <section class="inv-kpi-grid" aria-label="Analysis summary">
+            <article class="inv-kpi-card inv-kpi-card--total">
+                <div class="inv-kpi-icon" aria-hidden="true">@include('partials.icons.nav', ['name' => 'clipboard'])</div>
+                <div class="inv-kpi-body">
+                    <span class="inv-kpi-label">Total Samples</span>
+                    <span class="inv-kpi-value">{{ number_format($sheetStats['total']) }}</span>
+                </div>
+                <span class="inv-kpi-accent" aria-hidden="true"></span>
+            </article>
+            <article class="inv-kpi-card inv-kpi-card--paid">
+                <div class="inv-kpi-icon" aria-hidden="true">@include('partials.icons.nav', ['name' => 'check'])</div>
+                <div class="inv-kpi-body">
+                    <span class="inv-kpi-label">Passed</span>
+                    <span class="inv-kpi-value">{{ number_format($sheetStats['passed']) }}</span>
+                </div>
+                <span class="inv-kpi-accent" aria-hidden="true"></span>
+            </article>
+            <article class="inv-kpi-card inv-kpi-card--partial">
+                <div class="inv-kpi-icon" aria-hidden="true">@include('partials.icons.nav', ['name' => 'alert'])</div>
+                <div class="inv-kpi-body">
+                    <span class="inv-kpi-label">Pending</span>
+                    <span class="inv-kpi-value">{{ number_format($sheetStats['pending']) }}</span>
+                </div>
+                <span class="inv-kpi-accent" aria-hidden="true"></span>
+            </article>
+            <article class="inv-kpi-card inv-kpi-card--canceled">
+                <div class="inv-kpi-icon" aria-hidden="true">@include('partials.icons.nav', ['name' => 'alert'])</div>
+                <div class="inv-kpi-body">
+                    <span class="inv-kpi-label">Failed</span>
+                    <span class="inv-kpi-value">{{ number_format($sheetStats['failed']) }}</span>
+                </div>
+                <span class="inv-kpi-accent" aria-hidden="true"></span>
+            </article>
+        </section>
+        @endif
+
+<div class="sheet-card inv-main-card" id="datasheet">
+<form id="filter-form" autocomplete="off" onsubmit="return false;">
+    @if(!empty($isTrash))
+        <input type="hidden" name="trash" id="trash-flag" value="1">
+    @endif
+
+    <div class="inv-grid-toolbar">
+        <div class="inv-grid-toolbar-left">
+            <label class="inv-status-select" for="filter-result">
+                <span class="inv-status-dot" aria-hidden="true"></span>
+                <select name="filter_result" id="filter-result" class="inv-toolbar-select" onchange="applyAnalysisFilters()">
+                    <option value="">All Samples</option>
+                    <option value="PASS" {{ strtoupper((string) request('filter_result')) === 'PASS' ? 'selected' : '' }}>Passed</option>
+                    <option value="FAIL" {{ strtoupper((string) request('filter_result')) === 'FAIL' ? 'selected' : '' }}>Failed</option>
+                    <option value="Pending" {{ strtoupper((string) request('filter_result')) === 'PENDING' ? 'selected' : '' }}>Pending</option>
+                </select>
+            </label>
+            <div class="inv-date-range">
+                <input type="date" name="date_from" id="date-from" class="inv-toolbar-input" value="{{ request('date_from') }}" aria-label="Start date" onchange="applyAnalysisFilters()">
+                <span aria-hidden="true">–</span>
+                <input type="date" name="date_to" id="date-to" class="inv-toolbar-input" value="{{ request('date_to') }}" aria-label="End date" onchange="applyAnalysisFilters()">
+            </div>
+            <button type="button" class="inv-tool-btn" id="open-filter-btn" onclick="openFilterModal()" title="More filters">
+                Filter
                 <span class="filter-count" id="filter-count" hidden>0</span>
             </button>
+            <button type="button" class="inv-tool-icon" onclick="reloadAnalysisTable()" title="Refresh" aria-label="Refresh">↻</button>
+        </div>
+        <div class="inv-grid-toolbar-right">
+            @if(empty($isTrash))
+                <div class="inv-export-group">
+                    <button type="button" class="inv-tool-btn" id="export-btn" onclick="exportExcel()">Export</button>
+                    <button type="button" class="inv-tool-btn inv-tool-btn-pdf" id="export-pdf-btn" onclick="submitPdfExport()">Export PDF</button>
+                    @can('create', Modules\Analysis\Models\Analysis::class)
+                        <button type="button" class="inv-tool-btn" id="import-btn" onclick="openImportModal()">Import</button>
+                    @endcan
+                </div>
+            @endif
         </div>
     </div>
 
@@ -251,14 +119,6 @@
                 <button type="button" class="modal-close" onclick="closeFilterModal()" aria-label="Close">✕</button>
             </div>
             <div class="form-grid">
-                <div class="fld">
-                    <label for="date-from">From date</label>
-                    <input type="date" name="date_from" id="date-from" class="f-input" value="{{ request('date_from') }}">
-                </div>
-                <div class="fld">
-                    <label for="date-to">To date</label>
-                    <input type="date" name="date_to" id="date-to" class="f-input" value="{{ request('date_to') }}">
-                </div>
                 <div class="fld">
                     <label for="filter-sample">Sample</label>
                     <select name="filter_sample" id="filter-sample" class="f-select">
@@ -304,15 +164,6 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="fld">
-                    <label for="filter-result">Result</label>
-                    <select name="filter_result" id="filter-result" class="f-select">
-                        <option value="">All results</option>
-                        @foreach(collect($filterOptions['results'] ?? [])->merge(['PASS', 'FAIL', 'Pending'])->filter()->unique(fn ($value) => strtoupper((string) $value))->sort() as $v)
-                            <option value="{{ $v }}" {{ request('filter_result') == $v ? 'selected' : '' }}>{{ $v }}</option>
-                        @endforeach
-                    </select>
-                </div>
                 <div class="fld form-full">
                     <label for="filter-done-by">Analyst</label>
                     <select name="filter_done_by" id="filter-done-by" class="f-select">
@@ -334,6 +185,13 @@
 <form id="pdf-export-form" action="{{ route('analysis.export-pdf') }}" method="GET" target="_blank" style="display:none;">
     <input type="hidden" name="ids" id="pdf-export-ids">
 </form>
+<form id="bulk-delete-form" method="POST" action="{{ route('analysis.bulk-delete') }}" hidden>
+    @csrf
+</form>
+<form id="bulk-result-form" method="POST" action="{{ route('analysis.bulk-result') }}" hidden>
+    @csrf
+    <input type="hidden" name="result" id="bulk-result-value" value="">
+</form>
 
 @if(session('success'))
     <div class="alert alert-success" id="flash-msg"><span>Saved.</span> {{ session('success') }}</div>
@@ -344,8 +202,32 @@
 
 <div class="dt-table-wrap">
     {!! $dataTable->table(['class' => 'qc-datatable display nowrap', 'style' => 'width:100%']) !!}
+    <div class="mobile-sheet-list" id="mobile-analysis-list" aria-live="polite"></div>
 </div>
 </div>
+
+@if(empty($isTrash))
+<div class="bulk-bar" id="bulk-bar" hidden>
+    <div class="bulk-bar-inner">
+        <div class="bulk-bar-count">
+            <strong id="selected-count">0</strong>
+            <span>selected</span>
+            <button type="button" class="bulk-bar-clear" onclick="clearSelection()">Clear</button>
+        </div>
+        <div class="bulk-bar-actions">
+            @can('bulkUpdateResult', Modules\Analysis\Models\Analysis::class)
+                <button type="button" class="bulk-bar-btn bulk-bar-btn--pass" onclick="runBulkAction('pass')">Mark PASS</button>
+                <button type="button" class="bulk-bar-btn bulk-bar-btn--fail" onclick="runBulkAction('fail')">Mark FAIL</button>
+            @endcan
+            <button type="button" class="bulk-bar-btn" onclick="runBulkAction('export')">Export Excel</button>
+            <button type="button" class="bulk-bar-btn bulk-bar-btn--pdf" onclick="submitPdfExport()">Export PDF</button>
+            @can('bulkDelete', Modules\Analysis\Models\Analysis::class)
+                <button type="button" class="bulk-bar-btn bulk-bar-btn--danger" onclick="runBulkAction('delete')">Delete</button>
+            @endcan
+        </div>
+    </div>
+</div>
+@endif
 
 {{-- ADD / EDIT MODAL --}}
 <div class="modal-overlay" id="modal-overlay">
@@ -518,6 +400,20 @@
                 <label>Remarks</label>
                 <div class="view-value" id="v-remarks">—</div>
             </div>
+            <div class="fld">
+                <label>Created by</label>
+                <div class="view-value" id="v-created_by">—</div>
+            </div>
+            <div class="fld">
+                <label>Updated by</label>
+                <div class="view-value" id="v-updated_by">—</div>
+            </div>
+            @if(auth()->user()?->isAdmin())
+            <div class="fld form-full">
+                <label>Activity</label>
+                <div class="view-value" id="v-activity">—</div>
+            </div>
+            @endif
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline" onclick="closeViewModal()">Close</button>
@@ -532,7 +428,7 @@
             <h3 class="modal-title">⚙️ PDF Report Branding & Settings</h3>
             <button class="modal-close" onclick="closeSettingsModal()">✕</button>
         </div>
-        <form action="{{ route('analysis.save-settings') }}" method="POST">
+        <form action="{{ route('analysis.save-settings') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="form-grid" style="grid-template-columns:1fr;">
                 <div class="fld">
@@ -544,8 +440,8 @@
                     <input type="text" name="company_tagline" value="{{ $settings['company_tagline'] ?? 'Next Gen Ingredients' }}" placeholder="Next Gen Ingredients">
                 </div>
                 <div class="fld">
-                    <label>Logo Image URL / Path</label>
-                    <input type="text" name="logo_url" value="{{ $settings['logo_url'] ?? '' }}" placeholder="https://example.com/logo.png or empty for default text logo">
+                    <label>Logo Image</label>
+                    <input type="file" name="logo" accept="image/jpeg,image/png,image/jpg,image/svg+xml">
                 </div>
                 <div class="fld">
                     <label>Document Title</label>
@@ -564,12 +460,165 @@
     </div>
 </div>
 
+{{-- IMPORT EXCEL / CSV MODAL --}}
+@can('create', Modules\Analysis\Models\Analysis::class)
+<div class="modal-overlay" id="import-modal-overlay" onclick="if (event.target === this) closeImportModal()">
+    <div class="modal" style="max-width:560px;" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
+        <div class="modal-header">
+            <h3 class="modal-title" id="import-modal-title">Import Excel / CSV</h3>
+            <button type="button" class="modal-close" onclick="closeImportModal()" aria-label="Close">✕</button>
+        </div>
+        <form action="{{ route('analysis.import.store') }}" method="POST" enctype="multipart/form-data" id="import-modal-form">
+            @csrf
+            <p class="import-modal-lead">Upload HPLC analysis data. Purity is calculated on import. Max 10MB.</p>
+
+            <div class="import-modal-template">
+                <div>
+                    <strong>Need a template?</strong>
+                    <span>Download the Excel file with the correct headers.</span>
+                </div>
+                <a href="{{ route('analysis.template') }}" class="sheet-btn">Download template</a>
+            </div>
+
+            <label class="import-dropzone" id="import-dropzone" for="import-file-input">
+                <input type="file" name="file" id="import-file-input" accept=".xlsx,.xls,.csv" required>
+                <span class="import-dropzone-title" id="import-drop-title">Drop file here or click to browse</span>
+                <span class="import-dropzone-sub" id="import-drop-sub">XLSX, XLS, or CSV</span>
+            </label>
+
+            <div class="import-file-chip" id="import-file-chip" hidden>
+                <span id="import-file-name"></span>
+                <button type="button" class="modal-close" onclick="clearImportFile()" aria-label="Remove file">✕</button>
+            </div>
+
+            @error('file')
+                <div class="form-errors show" style="margin-top:.75rem;">{{ $message }}</div>
+            @enderror
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeImportModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="import-submit-btn" disabled>Upload &amp; import</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endcan
+    </main>
+</div>
+@endsection
+
+@section('scripts')
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 {!! $dataTable->scripts() !!}
 <script>
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 const selectedIds = new Set();
+const CAN_QUICK_EDIT = @json(auth()->user()?->canMutateAnalyses() ?? false);
+const IS_TRASH = @json(!empty($isTrash));
+
+function syncBulkBar() {
+    const bar = document.getElementById('bulk-bar');
+    const countSpan = document.getElementById('selected-count');
+    const count = selectedIds.size;
+    if (countSpan) countSpan.textContent = String(count);
+    if (bar) bar.hidden = count === 0;
+    document.body.classList.toggle('has-bulk-selection', count > 0);
+}
+
+function clearSelection() {
+    selectedIds.clear();
+    document.querySelectorAll('#analyses-table_wrapper .row-checkbox, .select-all').forEach(el => {
+        el.checked = false;
+        el.closest('tr')?.classList.remove('selected-row');
+    });
+    syncBulkBar();
+}
+
+function cellText(tr, field) {
+    const el = tr.querySelector('[data-field="' + field + '"]');
+    return (el?.textContent || '').trim();
+}
+
+function escHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function formatMobileDate(iso) {
+    if (!iso) return { main: '—', sub: '' };
+    const d = new Date(iso + 'T00:00:00');
+    if (Number.isNaN(d.getTime())) return { main: iso, sub: '' };
+    const sub = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    return { main: iso, sub };
+}
+
+function renderMobileAnalysisList() {
+    const list = document.getElementById('mobile-analysis-list');
+    if (!list) return;
+
+    const rows = document.querySelectorAll('#analyses-table tbody tr');
+    if (!rows.length || (rows.length === 1 && rows[0].querySelector('td.dataTables_empty'))) {
+        list.innerHTML = '<div class="mobile-sheet-empty">No HPLC records yet.</div>';
+        return;
+    }
+
+    const canEdit = CAN_QUICK_EDIT && !IS_TRASH;
+    const frag = document.createDocumentFragment();
+
+    rows.forEach((tr) => {
+        const id = tr.querySelector('.row-checkbox')?.value;
+        if (!id) return;
+
+        const date = formatMobileDate(cellText(tr, 'date'));
+        const sample = cellText(tr, 'sample_name') || 'Untitled sample';
+        const batch = cellText(tr, 'batch_no') || '—';
+        const analysis = cellText(tr, 'analysis') || 'Analysis';
+        const checked = selectedIds.has(String(id));
+
+        const card = document.createElement('article');
+        card.className = 'mobile-sheet-card' + (checked ? ' is-selected' : '');
+        card.dataset.id = id;
+        card.innerHTML =
+            '<label class="mobile-sheet-check">' +
+                '<input type="checkbox" class="row-checkbox mobile-row-checkbox" value="' + id + '"' + (checked ? ' checked' : '') + ' aria-label="Select record ' + id + '">' +
+            '</label>' +
+            '<div class="mobile-sheet-date">' +
+                '<span class="mobile-sheet-date-ico" aria-hidden="true">📅</span>' +
+                '<strong>' + date.main + '</strong>' +
+                (date.sub ? '<span>' + date.sub + '</span>' : '') +
+            '</div>' +
+            '<div class="mobile-sheet-main">' +
+                '<div class="mobile-sheet-title-row">' +
+                    '<div>' +
+                        '<button type="button" class="mobile-sheet-name" data-view="' + id + '">' + escHtml(sample) + '</button>' +
+                        '<div class="mobile-sheet-sub">' + escHtml(analysis) + '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<span class="mobile-sheet-batch">Batch: ' + escHtml(batch) + '</span>' +
+            '</div>' +
+            '<div class="mobile-sheet-actions">' +
+                '<button type="button" class="mobile-sheet-icon-btn" data-view="' + id + '" title="View" aria-label="View">👁</button>' +
+                (canEdit
+                    ? '<details class="mobile-sheet-more">' +
+                        '<summary class="mobile-sheet-icon-btn" title="More" aria-label="More">⋮</summary>' +
+                        '<div class="mobile-sheet-menu">' +
+                            '<button type="button" data-edit="' + id + '">Edit</button>' +
+                            '<button type="button" data-view="' + id + '">View</button>' +
+                        '</div>' +
+                      '</details>'
+                    : '<button type="button" class="mobile-sheet-icon-btn" data-view="' + id + '" title="View" aria-label="View details">⋮</button>') +
+            '</div>';
+
+        frag.appendChild(card);
+    });
+
+    list.innerHTML = '';
+    list.appendChild(frag);
+}
 
 window.onAnalysisTableDraw = function () {
     const boxes = document.querySelectorAll('#analyses-table_wrapper .row-checkbox');
@@ -579,8 +628,8 @@ window.onAnalysisTableDraw = function () {
     });
     const allOn = boxes.length > 0 && Array.from(boxes).every(cb => cb.checked);
     document.querySelectorAll('.select-all').forEach(el => { el.checked = allOn; });
-    const countSpan = document.getElementById('selected-count');
-    if (countSpan) countSpan.textContent = String(selectedIds.size);
+    syncBulkBar();
+    renderMobileAnalysisList();
     const dtSearch = document.querySelector('#analyses-table_wrapper .dataTables_filter input');
     if (dtSearch && !dtSearch.id) dtSearch.id = 'search-input';
 };
@@ -635,17 +684,64 @@ function exportExcel() {
     window.location = "{{ route('analysis.export') }}?" + params.toString();
 }
 
+function runBulkAction(action) {
+    const ids = Array.from(selectedIds);
+    if (!action) return;
+    if (ids.length === 0) {
+        alert('Select at least one record.');
+        return;
+    }
+
+    if (action === 'export') {
+        const params = new URLSearchParams();
+        ids.forEach(id => params.append('ids[]', id));
+        window.location = "{{ route('analysis.bulk-export') }}?" + params.toString();
+        return;
+    }
+
+    if (action === 'delete') {
+        if (!confirm('Delete ' + ids.length + ' selected record(s)?')) return;
+        const form = document.getElementById('bulk-delete-form');
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+        ids.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+        form.submit();
+        return;
+    }
+
+    if (action === 'pass' || action === 'fail') {
+        if (!confirm('Mark ' + ids.length + ' record(s) as ' + action.toUpperCase() + '?')) return;
+        const form = document.getElementById('bulk-result-form');
+        document.getElementById('bulk-result-value').value = action.toUpperCase();
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+        ids.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+        form.submit();
+    }
+}
+
 document.addEventListener('change', function (event) {
     const target = event.target;
     if (!(target instanceof HTMLInputElement)) return;
 
     if (target.classList.contains('select-all')) {
         document.querySelectorAll('.select-all').forEach(el => { el.checked = target.checked; });
-        document.querySelectorAll('#analyses-table_wrapper .row-checkbox').forEach(cb => {
+        document.querySelectorAll('#analyses-table_wrapper .row-checkbox, #mobile-analysis-list .row-checkbox').forEach(cb => {
             cb.checked = target.checked;
             if (target.checked) selectedIds.add(String(cb.value));
             else selectedIds.delete(String(cb.value));
             cb.closest('tr')?.classList.toggle('selected-row', target.checked);
+            cb.closest('.mobile-sheet-card')?.classList.toggle('is-selected', target.checked);
         });
     }
 
@@ -653,12 +749,29 @@ document.addEventListener('change', function (event) {
         if (target.checked) selectedIds.add(String(target.value));
         else selectedIds.delete(String(target.value));
         target.closest('tr')?.classList.toggle('selected-row', target.checked);
+        target.closest('.mobile-sheet-card')?.classList.toggle('is-selected', target.checked);
+        document.querySelectorAll('#analyses-table_wrapper .row-checkbox[value="' + target.value + '"], #mobile-analysis-list .row-checkbox[value="' + target.value + '"]').forEach(cb => {
+            cb.checked = target.checked;
+        });
     }
 
-    const countSpan = document.getElementById('selected-count');
-    if (countSpan) countSpan.textContent = String(selectedIds.size);
+    syncBulkBar();
 });
-/* Toggle Analytics Visibility */
+
+document.getElementById('mobile-analysis-list')?.addEventListener('click', function (event) {
+    const editBtn = event.target.closest('[data-edit]');
+    if (editBtn) {
+        event.preventDefault();
+        openEditModal(editBtn.getAttribute('data-edit'));
+        return;
+    }
+    const viewBtn = event.target.closest('[data-view]');
+    if (viewBtn) {
+        event.preventDefault();
+        openViewModal(viewBtn.getAttribute('data-view'));
+    }
+});
+
 function submitPdfExport() {
     const ids = Array.from(selectedIds);
 
@@ -832,7 +945,7 @@ function viewText(value) {
 async function openViewModal(id) {
     const overlay = document.getElementById('view-modal-overlay');
     document.getElementById('view-modal-title').textContent = 'HPLC Analysis Record';
-    ['date','sample_name','batch_no','analysis','pressure','column_name','instrument','done_by','std_con','std_area','sample_con','sample_area','purity','result','specification','sample_submitted_by','remarks'].forEach(key => {
+    ['date','sample_name','batch_no','analysis','pressure','column_name','instrument','done_by','std_con','std_area','sample_con','sample_area','purity','result','specification','sample_submitted_by','remarks','created_by','updated_by','activity'].forEach(key => {
         const el = document.getElementById('v-' + key);
         if (el) el.textContent = '—';
     });
@@ -863,6 +976,18 @@ async function openViewModal(id) {
         document.getElementById('v-specification').textContent = viewText(data.specification);
         document.getElementById('v-sample_submitted_by').textContent = viewText(data.sample_submitted_by);
         document.getElementById('v-remarks').textContent = viewText(data.remarks);
+        document.getElementById('v-created_by').textContent = viewText(data.created_by_name);
+        document.getElementById('v-updated_by').textContent = viewText(data.updated_by_name);
+        const activityEl = document.getElementById('v-activity');
+        if (activityEl) {
+            if (Array.isArray(data.activity_logs) && data.activity_logs.length) {
+                activityEl.innerHTML = data.activity_logs.map(log =>
+                    `<div>${viewText(log.at)} · ${viewText(log.action)} · ${viewText(log.user)}</div>`
+                ).join('');
+            } else {
+                activityEl.textContent = '—';
+            }
+        }
     } catch (err) {
         closeViewModal();
         alert('Could not load record data.');
@@ -876,8 +1001,85 @@ function closeViewModal() {
 function openSettingsModal() {
     document.getElementById('settings-modal-overlay').classList.add('open');
 }
+
+function openImportModal() {
+    document.getElementById('import-modal-overlay')?.classList.add('open');
+}
+
+function closeImportModal() {
+    document.getElementById('import-modal-overlay')?.classList.remove('open');
+}
+
+function clearImportFile() {
+    const input = document.getElementById('import-file-input');
+    const chip = document.getElementById('import-file-chip');
+    const title = document.getElementById('import-drop-title');
+    const sub = document.getElementById('import-drop-sub');
+    const submit = document.getElementById('import-submit-btn');
+    if (input) input.value = '';
+    if (chip) chip.hidden = true;
+    if (title) title.textContent = 'Drop file here or click to browse';
+    if (sub) sub.textContent = 'XLSX, XLS, or CSV';
+    if (submit) submit.disabled = true;
+}
+
+function syncImportFile(file) {
+    const chip = document.getElementById('import-file-chip');
+    const name = document.getElementById('import-file-name');
+    const title = document.getElementById('import-drop-title');
+    const sub = document.getElementById('import-drop-sub');
+    const submit = document.getElementById('import-submit-btn');
+    if (!file) {
+        clearImportFile();
+        return;
+    }
+    if (name) name.textContent = file.name + (file.size ? ` · ${(file.size / 1024).toFixed(1)} KB` : '');
+    if (chip) chip.hidden = false;
+    if (title) title.textContent = 'File selected';
+    if (sub) sub.textContent = 'Ready to upload';
+    if (submit) submit.disabled = false;
+}
+
+document.getElementById('import-file-input')?.addEventListener('change', function () {
+    syncImportFile(this.files?.[0] || null);
+});
+
+(function () {
+    const zone = document.getElementById('import-dropzone');
+    const input = document.getElementById('import-file-input');
+    if (!zone || !input) return;
+
+    ['dragenter', 'dragover'].forEach((evt) => {
+        zone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            zone.classList.add('is-dragover');
+        });
+    });
+    ['dragleave', 'drop'].forEach((evt) => {
+        zone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            zone.classList.remove('is-dragover');
+        });
+    });
+    zone.addEventListener('drop', (e) => {
+        const file = e.dataTransfer?.files?.[0];
+        if (!file) return;
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        syncImportFile(file);
+    });
+})();
+
+@error('file')
+openImportModal();
+@enderror
+
 if (location.hash === '#settings') {
     openSettingsModal();
+}
+if (location.hash === '#import') {
+    openImportModal();
 }
 function closeSettingsModal() {
     document.getElementById('settings-modal-overlay').classList.remove('open');
@@ -901,6 +1103,7 @@ function calcPurityPreview() {
 /* Inline cell editing */
 let activeCell = null;
 function editCell(el) {
+    if (!CAN_QUICK_EDIT || IS_TRASH) return;
     if (activeCell) commitCell(activeCell);
     activeCell = el;
     el.setAttribute('contenteditable', 'true');
@@ -953,7 +1156,4 @@ document.addEventListener('keydown', e => {
 });
 
 </script>
-</main>
-</div>
-</body>
-</html>
+@endsection

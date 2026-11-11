@@ -12,15 +12,15 @@ FROM php:8.4-cli-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libzip4 libpng16-16 libjpeg62-turbo libfreetype6 \
-        libonig5 libxml2 libsqlite3-0 libcurl4 \
+        libonig5 libxml2 libsqlite3-0 libcurl4 libpq5 \
         libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
-        libonig-dev libxml2-dev libsqlite3-dev libcurl4-openssl-dev \
+        libonig-dev libxml2-dev libsqlite3-dev libcurl4-openssl-dev libpq-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
-        pdo_sqlite gd zip mbstring xml bcmath curl \
+        pdo_sqlite pdo_pgsql gd zip mbstring xml bcmath curl \
     && apt-get purge -y --auto-remove \
         libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
-        libonig-dev libxml2-dev libsqlite3-dev libcurl4-openssl-dev \
+        libonig-dev libxml2-dev libsqlite3-dev libcurl4-openssl-dev libpq-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html
@@ -33,7 +33,6 @@ RUN mkdir -p storage/framework/cache/data \
         storage/logs \
         bootstrap/cache \
         database \
-    && touch database/database.sqlite \
     && chmod -R ug+rwx storage bootstrap/cache database \
     && chmod +x docker/start.sh
 

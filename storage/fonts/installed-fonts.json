@@ -1,0 +1,14 @@
+{
+    "reportdisplay": {
+        "normal": "\/home\/amiyon\/laravel-new\/storage\/fonts\/reportdisplay_normal_25b0dcab9e2f2506977e3ff222c7b14b",
+        "bold": "reportdisplay_bold_d5bd5ffcbac09693adefffdfcfd593a0"
+    },
+    "reportserif": {
+        "normal": "\/home\/amiyon\/laravel-new\/storage\/fonts\/reportserif_normal_3a2d774277f19bd50ed0c7b031d770ee",
+        "bold": "reportserif_bold_d7ab28646f015fa719a09d3a3baaddc3"
+    },
+    "reportsans": {
+        "normal": "\/home\/amiyon\/laravel-new\/storage\/fonts\/reportsans_normal_0fe5fda4c94f6bf5b8aea334a3d8cc88",
+        "bold": "reportsans_bold_e2941582974dd271f5542863cf14d0c7"
+    }
+}
