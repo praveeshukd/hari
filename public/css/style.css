@@ -2810,23 +2810,6 @@ ul {
   background: #cbd5e1;
 }
 
-.mdash-kpi-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.mdash-kpi-icon svg {
-  width: 22px;
-  height: 22px;
-}
-
 .mdash-kpi-body {
   display: flex;
   flex-direction: column;
@@ -2856,19 +2839,10 @@ ul {
   font-variant-numeric: tabular-nums;
 }
 
-.mdash-kpi--teal .mdash-kpi-icon { background: rgba(225, 0, 94, 0.1); color: #E1005E; }
 .mdash-kpi--teal .mdash-kpi-accent { background: #E1005E; }
-
-.mdash-kpi--green .mdash-kpi-icon { background: rgba(22, 163, 74, 0.12); color: #16a34a; }
 .mdash-kpi--green .mdash-kpi-accent { background: #16a34a; }
-
-.mdash-kpi--red .mdash-kpi-icon { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
 .mdash-kpi--red .mdash-kpi-accent { background: #dc2626; }
-
-.mdash-kpi--blue .mdash-kpi-icon { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
 .mdash-kpi--blue .mdash-kpi-accent { background: #6366f1; }
-
-.mdash-kpi--orange .mdash-kpi-icon { background: rgba(245, 158, 11, 0.12); color: #d97706; }
 .mdash-kpi--orange .mdash-kpi-accent { background: #f59e0b; }
 
 .mdash-overview,
@@ -3428,17 +3402,6 @@ ul {
   .mdash-kpi {
     padding: 14px 12px 14px 14px;
     gap: 10px;
-  }
-
-  .mdash-kpi-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-  }
-
-  .mdash-kpi-icon svg {
-    width: 18px;
-    height: 18px;
   }
 
   .mdash-kpi-value {

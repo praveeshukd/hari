@@ -51,9 +51,6 @@
                 @foreach($cards as $card)
                     <article class="mdash-kpi mdash-kpi--{{ $card['color'] }}">
                         <span class="mdash-kpi-accent" aria-hidden="true"></span>
-                        <div class="mdash-kpi-icon" aria-hidden="true">
-                            @include('partials.icons.nav', ['name' => $card['icon']])
-                        </div>
                         <div class="mdash-kpi-body">
                             <span class="mdash-kpi-label">{{ $card['label'] }}</span>
                             <span class="mdash-kpi-value">{{ $card['value'] }}</span>

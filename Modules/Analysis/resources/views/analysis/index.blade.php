@@ -37,7 +37,6 @@
         @if(empty($isTrash))
         <section class="inv-kpi-grid" aria-label="Analysis summary">
             <article class="inv-kpi-card inv-kpi-card--total">
-                <div class="inv-kpi-icon" aria-hidden="true">@include('partials.icons.nav', ['name' => 'clipboard'])</div>
                 <div class="inv-kpi-body">
                     <span class="inv-kpi-label">Total Samples</span>
                     <span class="inv-kpi-value">{{ number_format($sheetStats['total']) }}</span>
@@ -45,7 +44,6 @@
                 <span class="inv-kpi-accent" aria-hidden="true"></span>
             </article>
             <article class="inv-kpi-card inv-kpi-card--paid">
-                <div class="inv-kpi-icon" aria-hidden="true">@include('partials.icons.nav', ['name' => 'check'])</div>
                 <div class="inv-kpi-body">
                     <span class="inv-kpi-label">Passed</span>
                     <span class="inv-kpi-value">{{ number_format($sheetStats['passed']) }}</span>
@@ -53,7 +51,6 @@
                 <span class="inv-kpi-accent" aria-hidden="true"></span>
             </article>
             <article class="inv-kpi-card inv-kpi-card--partial">
-                <div class="inv-kpi-icon" aria-hidden="true">@include('partials.icons.nav', ['name' => 'alert'])</div>
                 <div class="inv-kpi-body">
                     <span class="inv-kpi-label">Pending</span>
                     <span class="inv-kpi-value">{{ number_format($sheetStats['pending']) }}</span>
@@ -61,7 +58,6 @@
                 <span class="inv-kpi-accent" aria-hidden="true"></span>
             </article>
             <article class="inv-kpi-card inv-kpi-card--canceled">
-                <div class="inv-kpi-icon" aria-hidden="true">@include('partials.icons.nav', ['name' => 'alert'])</div>
                 <div class="inv-kpi-body">
                     <span class="inv-kpi-label">Failed</span>
                     <span class="inv-kpi-value">{{ number_format($sheetStats['failed']) }}</span>
@@ -88,11 +84,6 @@
                     <option value="Pending" {{ strtoupper((string) request('filter_result')) === 'PENDING' ? 'selected' : '' }}>Pending</option>
                 </select>
             </label>
-            <div class="inv-date-range">
-                <input type="date" name="date_from" id="date-from" class="inv-toolbar-input" value="{{ request('date_from') }}" aria-label="Start date" onchange="applyAnalysisFilters()">
-                <span aria-hidden="true">–</span>
-                <input type="date" name="date_to" id="date-to" class="inv-toolbar-input" value="{{ request('date_to') }}" aria-label="End date" onchange="applyAnalysisFilters()">
-            </div>
             <button type="button" class="inv-tool-btn" id="open-filter-btn" onclick="openFilterModal()" title="More filters">
                 Filter
                 <span class="filter-count" id="filter-count" hidden>0</span>
@@ -179,7 +170,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="fld form-full">
+                <div class="fld">
                     <label for="filter-done-by">Analyst</label>
                     <select name="filter_done_by" id="filter-done-by" class="f-select">
                         <option value="">All analysts</option>
@@ -187,6 +178,14 @@
                             <option value="{{ $v }}" {{ request('filter_done_by') == $v ? 'selected' : '' }}>{{ $v }}</option>
                         @endforeach
                     </select>
+                </div>
+                <div class="fld">
+                    <label for="date-from">From</label>
+                    <input type="date" name="date_from" id="date-from" value="{{ request('date_from') }}">
+                </div>
+                <div class="fld">
+                    <label for="date-to">To</label>
+                    <input type="date" name="date_to" id="date-to" value="{{ request('date_to') }}">
                 </div>
             </div>
             <div class="modal-footer">

@@ -79,23 +79,6 @@
   overflow: hidden;
 }
 
-.inv-kpi-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.inv-kpi-icon svg {
-  width: 22px;
-  height: 22px;
-}
-
 .inv-kpi-body {
   display: flex;
   flex-direction: column;
@@ -126,13 +109,9 @@
   border-radius: 4px 0 0 4px;
 }
 
-.inv-kpi-card--total .inv-kpi-icon { background: rgba(225, 0, 94, 0.1); color: #E1005E; }
 .inv-kpi-card--total .inv-kpi-accent { background: #E1005E; }
-.inv-kpi-card--paid .inv-kpi-icon { background: rgba(22, 163, 74, 0.12); color: #16a34a; }
 .inv-kpi-card--paid .inv-kpi-accent { background: #16a34a; }
-.inv-kpi-card--partial .inv-kpi-icon { background: rgba(245, 158, 11, 0.12); color: #d97706; }
 .inv-kpi-card--partial .inv-kpi-accent { background: #f59e0b; }
-.inv-kpi-card--canceled .inv-kpi-icon { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
 .inv-kpi-card--canceled .inv-kpi-accent { background: #dc2626; }
 
 .inv-main-card {
