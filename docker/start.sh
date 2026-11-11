@@ -19,11 +19,10 @@ if [ -n "${RENDER:-}" ] || [ -n "${RENDER_EXTERNAL_URL:-}" ]; then
     IS_RENDER=1
 fi
 
-# On Render, SQLite lives inside the container and is lost on every redeploy.
-# Prefer Postgres. Set STRICT_PERSISTENT_DB=1 to fail boot instead of warning.
+# Render free web: SQLite is intentional for demo/dummy data (wiped on redeploy).
+# Set STRICT_PERSISTENT_DB=1 only if you must refuse ephemeral SQLite boots.
 if [ "$IS_RENDER" -eq 1 ] && [ "$DB_CONNECTION" = "sqlite" ]; then
-    echo "boot: WARNING — DB_CONNECTION=sqlite on Render; data will not survive redeploys."
-    echo "boot: Switch to Render Postgres (DB_CONNECTION=pgsql) to keep live data."
+    echo "boot: DB_CONNECTION=sqlite (demo data; reset on each redeploy)."
     if [ "${STRICT_PERSISTENT_DB:-0}" = "1" ]; then
         echo "boot: ERROR — STRICT_PERSISTENT_DB=1 blocks sqlite boot."
         exit 1

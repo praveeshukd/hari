@@ -126,7 +126,7 @@ Free-text DataTable search covers non-encrypted columns only (`analysis`, `instr
 - Blueprint: `render.yaml` (web only, `DB_CONNECTION=sqlite` — no Postgres)
 - **Demo data:** SQLite is wiped on every redeploy (fine for dummy data).
 - **Data safety:** boot runs only `php artisan migrate --force` (pending migrations). Never `migrate:fresh` / wipe.
-- For lasting data later: add Render/external Postgres and set `DB_CONNECTION=pgsql` + credentials.
+- Do not attach a Render Postgres DB or set `DB_CONNECTION=pgsql` unless you later need lasting data.
 - Keep a **stable `APP_KEY`** in Render env (do not regenerate) so sessions/login stay valid across deploys.
 - Optional: Background Worker `php artisan queue:work`; paid disk for `storage/app` (imports/logos)
 
