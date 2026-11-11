@@ -87,6 +87,11 @@
                 @error('batch_no') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
             <div class="fld">
+                <label>Request Form No</label>
+                <input type="text" name="request_form_no" value="{{ old('request_form_no', $analysis->request_form_no) }}" placeholder="e.g. STR26/B2024-001">
+                @error('request_form_no') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+            <div class="fld">
                 <label>Analysis *</label>
                 <input type="text" name="analysis" value="{{ old('analysis', $analysis->analysis) }}" required>
                 @error('analysis') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -128,6 +133,11 @@
             <div class="fld">
                 <label>Sample Area</label>
                 <input type="number" step="any" name="sample_area" id="e-sample-area" value="{{ old('sample_area', $analysis->sample_area) }}" oninput="calcPurity()">
+            </div>
+            <div class="fld">
+                <label>Standard Purity</label>
+                <input type="number" step="any" name="standard_purity" id="e-standard-purity" value="{{ old('standard_purity', $analysis->standard_purity) }}" placeholder="e.g. 99 or 98" oninput="calcPurity()">
+                @error('standard_purity') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
             <div class="fld form-full">
                 <label>Purity % (Auto-Calculated)</label>
@@ -183,9 +193,11 @@ function calcPurity(){
     const sa = parseFloat(document.getElementById('e-std-area').value);
     const pc = parseFloat(document.getElementById('e-sample-con').value);
     const pa = parseFloat(document.getElementById('e-sample-area').value);
+    const typedStd = parseFloat(document.getElementById('e-standard-purity').value);
+    const factor = (typedStd > 0) ? typedStd : 100;
     const el = document.getElementById('e-purity-preview');
     if(sc && sa && pc && pa){
-        const p = (pa/sa)*(sc/pc)*100;
+        const p = (pa/sa)*(sc/pc)*factor;
         el.textContent = p.toFixed(4)+'%';
         el.style.color = p>=99?'#4ade80':p>=95?'#fbbf24':'#fb7185';
     } else {

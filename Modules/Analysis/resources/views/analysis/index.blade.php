@@ -246,6 +246,10 @@
                     <input type="text" name="batch_no" id="f-batch_no" required placeholder="e.g. B2024-001">
                 </div>
                 <div class="fld">
+                    <label>Request Form No</label>
+                    <input type="text" name="request_form_no" id="f-request_form_no" placeholder="e.g. STR26/B2024-001">
+                </div>
+                <div class="fld">
                     <label>Analysis *</label>
                     <input type="text" name="analysis" id="f-analysis" required placeholder="e.g. Assay by HPLC">
                 </div>
@@ -280,6 +284,10 @@
                 <div class="fld">
                     <label>Sample Peak Area</label>
                     <input type="number" step="any" name="sample_area" id="f-sample_area" placeholder="0.00" oninput="calcPurityPreview()">
+                </div>
+                <div class="fld">
+                    <label>Standard Purity</label>
+                    <input type="number" step="any" name="standard_purity" id="f-standard_purity" placeholder="e.g. 99 or 98" oninput="calcPurityPreview()">
                 </div>
                 <div class="fld">
                     <label>Calculated Purity %</label>
@@ -335,6 +343,10 @@
                 <div class="view-value" id="v-batch_no">—</div>
             </div>
             <div class="fld">
+                <label>Request Form No</label>
+                <div class="view-value" id="v-request_form_no">—</div>
+            </div>
+            <div class="fld">
                 <label>Analysis</label>
                 <div class="view-value" id="v-analysis">—</div>
             </div>
@@ -369,6 +381,10 @@
             <div class="fld">
                 <label>Sample Area</label>
                 <div class="view-value" id="v-sample_area">—</div>
+            </div>
+            <div class="fld">
+                <label>Standard Purity</label>
+                <div class="view-value" id="v-standard_purity">—</div>
             </div>
             <div class="fld">
                 <label>Purity</label>
@@ -699,6 +715,7 @@ function openAddModal() {
     document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
     document.getElementById('f-sample_name').value = '';
     document.getElementById('f-batch_no').value = '';
+    document.getElementById('f-request_form_no').value = '';
     document.getElementById('f-analysis').value = '';
     document.getElementById('f-pressure').value = '';
     document.getElementById('f-column_name').value = '';
@@ -708,6 +725,7 @@ function openAddModal() {
     document.getElementById('f-std_area').value = '';
     document.getElementById('f-sample_con').value = '';
     document.getElementById('f-sample_area').value = '';
+    document.getElementById('f-standard_purity').value = '';
     document.getElementById('purity-preview-val').textContent = '—';
     document.getElementById('f-result').value = 'PASS';
     document.getElementById('f-specification').value = '0.80%';
@@ -735,6 +753,7 @@ async function openEditModal(id) {
         document.getElementById('f-date').value = data.date ? String(data.date).slice(0, 10) : '';
         document.getElementById('f-sample_name').value = fieldValue(data.sample_name);
         document.getElementById('f-batch_no').value = fieldValue(data.batch_no);
+        document.getElementById('f-request_form_no').value = fieldValue(data.request_form_no);
         document.getElementById('f-analysis').value = fieldValue(data.analysis);
         document.getElementById('f-pressure').value = fieldValue(data.pressure);
         document.getElementById('f-column_name').value = fieldValue(data.column_name);
@@ -744,6 +763,7 @@ async function openEditModal(id) {
         document.getElementById('f-std_area').value = fieldValue(data.std_area);
         document.getElementById('f-sample_con').value = fieldValue(data.sample_con);
         document.getElementById('f-sample_area').value = fieldValue(data.sample_area);
+        document.getElementById('f-standard_purity').value = fieldValue(data.standard_purity);
         document.getElementById('f-result').value = data.result || 'PASS';
         document.getElementById('f-specification').value = data.specification || '0.80%';
         document.getElementById('f-sample_submitted_by').value = fieldValue(data.sample_submitted_by);
@@ -768,7 +788,7 @@ function viewText(value) {
 async function openViewModal(id) {
     const overlay = document.getElementById('view-modal-overlay');
     document.getElementById('view-modal-title').textContent = 'HPLC Analysis Record';
-    ['date','sample_name','batch_no','analysis','pressure','column_name','instrument','done_by','std_con','std_area','sample_con','sample_area','purity','result','specification','sample_submitted_by','remarks','created_by','updated_by','activity'].forEach(key => {
+    ['date','sample_name','batch_no','request_form_no','analysis','pressure','column_name','instrument','done_by','std_con','std_area','sample_con','sample_area','standard_purity','purity','result','specification','sample_submitted_by','remarks','created_by','updated_by','activity'].forEach(key => {
         const el = document.getElementById('v-' + key);
         if (el) el.textContent = '—';
     });
@@ -783,6 +803,7 @@ async function openViewModal(id) {
         document.getElementById('v-date').textContent = data.date ? String(data.date).slice(0, 10) : '—';
         document.getElementById('v-sample_name').textContent = viewText(data.sample_name);
         document.getElementById('v-batch_no').textContent = viewText(data.batch_no);
+        document.getElementById('v-request_form_no').textContent = viewText(data.request_form_no);
         document.getElementById('v-analysis').textContent = viewText(data.analysis);
         document.getElementById('v-pressure').textContent = viewText(data.pressure);
         document.getElementById('v-column_name').textContent = viewText(data.column_name);
@@ -792,6 +813,9 @@ async function openViewModal(id) {
         document.getElementById('v-std_area').textContent = viewText(data.std_area);
         document.getElementById('v-sample_con').textContent = viewText(data.sample_con);
         document.getElementById('v-sample_area').textContent = viewText(data.sample_area);
+        document.getElementById('v-standard_purity').textContent = (data.standard_purity === null || data.standard_purity === undefined || data.standard_purity === '')
+            ? '—'
+            : Number(data.standard_purity).toFixed(2);
         document.getElementById('v-purity').textContent = (data.purity === null || data.purity === undefined || data.purity === '')
             ? '—'
             : Number(data.purity).toFixed(2) + '%';
@@ -836,10 +860,12 @@ function calcPurityPreview() {
     const sa = parseFloat(document.getElementById('f-sample_area').value);
     const stc = parseFloat(document.getElementById('f-std_con').value);
     const sta = parseFloat(document.getElementById('f-std_area').value);
+    const typedStd = parseFloat(document.getElementById('f-standard_purity').value);
+    const factor = (typedStd > 0) ? typedStd : 100;
     const prevEl = document.getElementById('purity-preview-val');
 
     if (sc > 0 && sa > 0 && stc > 0 && sta > 0) {
-        const purity = (sa / sta) * (stc / sc) * 100;
+        const purity = (sa / sta) * (stc / sc) * factor;
         prevEl.textContent = purity.toFixed(2) + '%';
     } else {
         prevEl.textContent = '—';

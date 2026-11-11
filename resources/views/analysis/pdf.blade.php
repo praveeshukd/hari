@@ -120,10 +120,12 @@
 
 @foreach($records as $row)
 @php
-    $formNo = ($settings['request_prefix'] ?? 'STR')
-        . ($row->date?->format('y') ?? '')
-        . '/'
-        . ($row->batch_no ?? str_pad((string) $row->id, 3, '0', STR_PAD_LEFT));
+    $formNo = filled($row->request_form_no)
+        ? $row->request_form_no
+        : (($settings['request_prefix'] ?? 'STR')
+            . ($row->date?->format('y') ?? '')
+            . '/'
+            . ($row->batch_no ?? str_pad((string) $row->id, 3, '0', STR_PAD_LEFT)));
 @endphp
 <div class="page {{ !$loop->last ? 'page-break' : '' }}">
 

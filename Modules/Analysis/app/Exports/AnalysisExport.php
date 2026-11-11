@@ -56,6 +56,7 @@ class AnalysisExport implements
             'Date',
             'Sample Name',
             'Batch No',
+            'Request Form No',
             'Analysis',
             'Pressure',
             'Column',
@@ -64,6 +65,7 @@ class AnalysisExport implements
             'Std Area',
             'Sample Concentration',
             'Sample Area',
+            'Standard Purity',
             'Purity %',
             'Result',
             'Done By / Reviewed By',
@@ -77,6 +79,7 @@ class AnalysisExport implements
             $row->date?->format('Y-m-d'),
             $row->sample_name,
             $row->batch_no,
+            $row->request_form_no,
             $row->analysis,
             $row->pressure,
             $row->column_name,
@@ -85,6 +88,7 @@ class AnalysisExport implements
             $row->std_area,
             $row->sample_con,
             $row->sample_area,
+            $row->standard_purity,
             $row->purity,
             $row->result,
             $row->done_by,
@@ -158,18 +162,18 @@ class AnalysisExport implements
                 // Freeze top row
                 $sheet->freezePane('A2');
 
-                // Colour-code Purity column (L = col 12)
+                // Colour-code Purity column (N = col 14)
                 for ($r = 2; $r <= $lastRow; $r++) {
-                    $purity = (float) $sheet->getCell("L$r")->getValue();
+                    $purity = (float) $sheet->getCell("N$r")->getValue();
                     if ($purity <= 0) continue;
                     $color = $purity >= 99 ? '16a34a' : ($purity >= 95 ? 'd97706' : 'dc2626');
-                    $sheet->getStyle("L$r")->applyFromArray([
+                    $sheet->getStyle("N$r")->applyFromArray([
                         'font' => ['bold' => true, 'color' => ['rgb' => $color]],
                     ]);
                 }
 
                 // Auto-filter on header row
-                $sheet->setAutoFilter("A1:O1");
+                $sheet->setAutoFilter("A1:Q1");
             },
         ];
     }

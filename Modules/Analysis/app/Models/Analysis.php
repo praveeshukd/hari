@@ -30,6 +30,7 @@ class Analysis extends Model
         'sample_name_hash',
         'batch_no',
         'batch_no_hash',
+        'request_form_no',
         'analysis',
         'pressure',
         'column_name',
@@ -38,6 +39,7 @@ class Analysis extends Model
         'std_area',
         'sample_con',
         'sample_area',
+        'standard_purity',
         'purity',
         'specification',
         'sample_submitted_by',
@@ -56,6 +58,7 @@ class Analysis extends Model
         'std_area' => 'float',
         'sample_con' => 'float',
         'sample_area' => 'float',
+        'standard_purity' => 'float',
         'purity' => 'float',
         'sample_name' => NullableEncryptedString::class,
         'batch_no' => NullableEncryptedString::class,
@@ -184,6 +187,7 @@ class Analysis extends Model
                 $model->std_area !== null ? (float) $model->std_area : null,
                 $model->std_con !== null ? (float) $model->std_con : null,
                 $model->sample_con !== null ? (float) $model->sample_con : null,
+                $model->standard_purity !== null ? (float) $model->standard_purity : null,
             );
         });
     }

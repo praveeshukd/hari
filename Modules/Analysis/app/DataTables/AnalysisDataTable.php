@@ -27,7 +27,13 @@ class AnalysisDataTable extends DataTable
             ->editColumn('date', fn (Analysis $row) => $this->editable($row, 'date', $row->date?->format('Y-m-d')))
             ->editColumn('sample_name', fn (Analysis $row) => $this->editable($row, 'sample_name', $row->sample_name, 'cell-strong'))
             ->editColumn('batch_no', fn (Analysis $row) => $this->editable($row, 'batch_no', $row->batch_no))
+            ->editColumn('request_form_no', fn (Analysis $row) => $this->editable($row, 'request_form_no', $row->request_form_no))
             ->editColumn('analysis', fn (Analysis $row) => $this->editable($row, 'analysis', $row->analysis))
+            ->editColumn('standard_purity', fn (Analysis $row) => $this->editable(
+                $row,
+                'standard_purity',
+                $row->standard_purity === null ? '' : number_format((float) $row->standard_purity, 2)
+            ))
             ->editColumn('purity', fn (Analysis $row) => $this->purityMarkup($row))
             ->editColumn('result', function (Analysis $row) {
                 if ($this->isSheet()) {
@@ -68,8 +74,8 @@ class AnalysisDataTable extends DataTable
             ->orderColumn('action', 'analyses.id $1')
             ->orderColumn('DT_RowIndex', 'analyses.id $1')
             ->rawColumns([
-                'checkbox', 'date', 'sample_name', 'batch_no', 'analysis',
-                'purity', 'result', 'action',
+                'checkbox', 'date', 'sample_name', 'batch_no', 'request_form_no', 'analysis',
+                'standard_purity', 'purity', 'result', 'action',
             ])
             ->setRowId(fn (Analysis $row) => 'row-'.$row->id);
     }
@@ -80,9 +86,9 @@ class AnalysisDataTable extends DataTable
 
         $columns = $this->isSheet()
             ? [
-                'id', 'date', 'sample_name', 'batch_no', 'analysis',
+                'id', 'date', 'sample_name', 'batch_no', 'request_form_no', 'analysis',
                 'purity', 'result', 'pressure', 'column_name', 'instrument',
-                'std_con', 'std_area', 'sample_con', 'sample_area',
+                'std_con', 'std_area', 'sample_con', 'sample_area', 'standard_purity',
                 'done_by', 'remarks', 'specification', 'sample_submitted_by',
                 'deleted_at',
             ]
@@ -161,7 +167,9 @@ class AnalysisDataTable extends DataTable
             Column::make('date')->title('Date'),
             Column::make('sample_name')->title('Sample Name'),
             Column::make('batch_no')->title('Batch No'),
+            Column::make('request_form_no')->title('Request Form No'),
             Column::make('analysis')->title('Analysis'),
+            Column::make('standard_purity')->title('Std Purity'),
             Column::make('result')->title('Status')->searchable(false),
             Column::computed('action')
                 ->title('Actions')
