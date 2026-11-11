@@ -1,7 +1,6 @@
 @php
     $active = $active ?? 'dashboard';
     $onSheet = request()->routeIs('analysis.index');
-    $user = auth()->user();
 @endphp
 
 <aside class="admin-sidebar" id="main-sidebar">
@@ -17,35 +16,25 @@
         </a>
 
         <div class="admin-nav-section-label">QC Lab</div>
-        <a href="{{ route('analysis.index') }}" class="admin-nav-item {{ $active === 'analysis' ? 'active' : '' }}">
+        <a href="{{ route('analysis.index') }}" class="admin-nav-item {{ $active === 'analysis' && ! request('trash') ? 'active' : '' }}">
             <span class="nav-icon">@include('partials.icons.nav', ['name' => 'sheet'])</span>
             <span>Analysis Sheet</span>
         </a>
-        @can('create', Modules\Analysis\Models\Analysis::class)
-            @if($onSheet)
-            <a href="javascript:void(0)" onclick="openSettingsModal()" class="admin-nav-item">
-                <span class="nav-icon">@include('partials.icons.nav', ['name' => 'settings'])</span>
-                <span>PDF Setup</span>
-            </a>
-            @else
-            <a href="{{ route('analysis.index') }}#settings" class="admin-nav-item">
-                <span class="nav-icon">@include('partials.icons.nav', ['name' => 'settings'])</span>
-                <span>PDF Setup</span>
-            </a>
-            @endif
-        @endcan
-
-        @if($user?->isAdmin())
-            <div class="admin-nav-section-label">Admin</div>
-            <a href="{{ route('users.index') }}" class="admin-nav-item {{ $active === 'users' ? 'active' : '' }}">
-                <span class="nav-icon">@include('partials.icons.nav', ['name' => 'users'])</span>
-                <span>Users</span>
-            </a>
-            <a href="{{ route('analysis.index', ['trash' => 1]) }}" class="admin-nav-item {{ request('trash') ? 'active' : '' }}">
-                <span class="nav-icon">@include('partials.icons.nav', ['name' => 'alert'])</span>
-                <span>Trash</span>
-            </a>
+        @if($onSheet)
+        <a href="javascript:void(0)" onclick="openSettingsModal()" class="admin-nav-item">
+            <span class="nav-icon">@include('partials.icons.nav', ['name' => 'settings'])</span>
+            <span>PDF Setup</span>
+        </a>
+        @else
+        <a href="{{ route('analysis.index') }}#settings" class="admin-nav-item">
+            <span class="nav-icon">@include('partials.icons.nav', ['name' => 'settings'])</span>
+            <span>PDF Setup</span>
+        </a>
         @endif
+        <a href="{{ route('analysis.index', ['trash' => 1]) }}" class="admin-nav-item {{ request('trash') ? 'active' : '' }}">
+            <span class="nav-icon">@include('partials.icons.nav', ['name' => 'alert'])</span>
+            <span>Trash</span>
+        </a>
     </nav>
 </aside>
 

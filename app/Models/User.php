@@ -66,7 +66,7 @@ class User extends Authenticatable
 
     public function canMutateAnalyses(): bool
     {
-        return $this->isAdmin() || $this->isAnalyst();
+        return true;
     }
 
     public function createdAnalyses(): HasMany

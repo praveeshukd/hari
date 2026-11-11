@@ -9,51 +9,51 @@ class AnalysisPolicy
 {
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, User::ROLES, true);
+        return true;
     }
 
     public function view(User $user, Analysis $analysis): bool
     {
-        return $this->viewAny($user);
+        return true;
     }
 
     public function create(User $user): bool
     {
-        return $user->canMutateAnalyses();
+        return true;
     }
 
     public function update(User $user, Analysis $analysis): bool
     {
-        return $user->canMutateAnalyses();
+        return true;
     }
 
     public function delete(User $user, Analysis $analysis): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     public function restore(User $user, Analysis $analysis): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     public function forceDelete(User $user, Analysis $analysis): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     public function bulkDelete(User $user): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     public function bulkUpdateResult(User $user): bool
     {
-        return $user->canMutateAnalyses();
+        return true;
     }
 
     public function manageSettings(User $user): bool
     {
-        return $user->canMutateAnalyses();
+        return true;
     }
 }

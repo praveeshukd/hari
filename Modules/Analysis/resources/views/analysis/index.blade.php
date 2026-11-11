@@ -399,12 +399,10 @@
                 <label>Updated by</label>
                 <div class="view-value" id="v-updated_by">—</div>
             </div>
-            @if(auth()->user()?->isAdmin())
             <div class="fld form-full">
                 <label>Activity</label>
                 <div class="view-value" id="v-activity">—</div>
             </div>
-            @endif
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline" onclick="closeViewModal()">Close</button>

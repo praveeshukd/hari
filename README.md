@@ -13,7 +13,7 @@ GitHub: [https://github.com/praveeshukd/hari](https://github.com/praveeshukd/har
 | Stack | Laravel 11, PHP 8.2+ (Docker uses PHP 8.4) |
 | Architecture | nWidart `Analysis` module + shared repos in `app/Repositories` + DDD Actions/Services/DTOs |
 | Database | MySQL locally; SQLite fallback; Postgres supported on Render |
-| Auth / roles | Session auth · `admin` / `analyst` / `viewer` |
+| Auth | Session auth (shared access for all logged-in users) |
 | Main feature | Analysis (QC) sheet: CRUD, soft delete, bulk actions, filters, Excel/PDF, queued import |
 | Security | Encrypted sensitive fields, audit trail, fail email alerts |
 | UI | CaterHub-inspired admin shell (teal brand), Yajra DataTables |
@@ -38,18 +38,10 @@ app/
 
 ---
 
-## Roles
+## Access
 
-| Ability | Admin | Analyst | Viewer |
-| --- | --- | --- | --- |
-| View dashboard / analyses | yes | yes | yes |
-| Create / update / quick-update / import | yes | yes | no |
-| Bulk update result | yes | yes | no |
-| Delete / restore / bulk delete | yes | no | no |
-| Manage users / roles | yes | no | no |
-| PDF settings | yes | yes | no |
-
-First registered user becomes `admin`; later registrations default to `analyst`.
+Any authenticated user can use the full Analysis sheet (create, import, edit, delete, PDF settings).  
+User-role management UI has been removed.
 
 ---
 
@@ -75,9 +67,8 @@ First registered user becomes `admin`; later registrations default to `analyst`.
 | GET | `/analysis/bulk-export` | `analysis.bulk-export` |
 | PATCH | `/analysis/{id}/quick-update` | `analysis.quick-update` |
 | POST | `/analysis-import` | Queued import (modal on Analysis sheet) |
-| GET | `/users` | Admin role management |
 
-Trash view: `/analysis?trash=1` (admin).
+Trash view: `/analysis?trash=1`.
 
 ---
 

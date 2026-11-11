@@ -1,7 +1,6 @@
 @php
     $active = $active ?? 'dashboard';
     $user = auth()->user();
-    $canCreate = $user && $user->can('create', Modules\Analysis\Models\Analysis::class);
 @endphp
 
 <nav class="admin-mobile-nav" aria-label="Primary">
@@ -15,45 +14,24 @@
         <span class="admin-mobile-nav-label">Analysis</span>
     </a>
 
-    @if($user?->isAdmin())
-        <a href="{{ route('users.index') }}" class="admin-mobile-nav-item {{ $active === 'users' ? 'is-active' : '' }}">
-            <span class="admin-mobile-nav-ico" aria-hidden="true">@include('partials.icons.nav', ['name' => 'users'])</span>
-            <span class="admin-mobile-nav-label">Users</span>
-        </a>
-    @else
-        @if($canCreate)
-            <a href="{{ route('analysis.index', ['import' => 1]) }}" class="admin-mobile-nav-item {{ $active === 'analysis' && request()->boolean('import') ? 'is-active' : '' }}">
-                <span class="admin-mobile-nav-ico" aria-hidden="true">@include('partials.icons.nav', ['name' => 'box'])</span>
-                <span class="admin-mobile-nav-label">Import</span>
-            </a>
-        @else
-            <a href="{{ route('analysis.index') }}" class="admin-mobile-nav-item">
-                <span class="admin-mobile-nav-ico" aria-hidden="true">@include('partials.icons.nav', ['name' => 'box'])</span>
-                <span class="admin-mobile-nav-label">Sheet</span>
-            </a>
-        @endif
-    @endif
+    <a href="{{ route('analysis.index') }}" class="admin-mobile-nav-item" onclick="if (typeof openImportModal === 'function') { event.preventDefault(); openImportModal(); }">
+        <span class="admin-mobile-nav-ico" aria-hidden="true">@include('partials.icons.nav', ['name' => 'box'])</span>
+        <span class="admin-mobile-nav-label">Import</span>
+    </a>
 
-    @if($canCreate)
-        <a href="{{ route('analysis.index') }}#settings" class="admin-mobile-nav-item" onclick="if (typeof openSettingsModal === 'function') { event.preventDefault(); openSettingsModal(); }">
+    <details class="admin-mobile-nav-more">
+        <summary class="admin-mobile-nav-item">
             <span class="admin-mobile-nav-ico" aria-hidden="true">@include('partials.icons.nav', ['name' => 'settings'])</span>
-            <span class="admin-mobile-nav-label">Settings</span>
-        </a>
-    @else
-        <details class="admin-mobile-nav-more">
-            <summary class="admin-mobile-nav-item">
-                <span class="admin-mobile-nav-ico" aria-hidden="true">@include('partials.icons.nav', ['name' => 'settings'])</span>
-                <span class="admin-mobile-nav-label">More</span>
-            </summary>
-            <div class="admin-mobile-nav-panel">
-                @if($user)
-                    <span class="admin-mobile-nav-email">{{ $user->email }}</span>
-                @endif
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit">Sign out</button>
-                </form>
-            </div>
-        </details>
-    @endif
+            <span class="admin-mobile-nav-label">More</span>
+        </summary>
+        <div class="admin-mobile-nav-panel">
+            @if($user)
+                <span class="admin-mobile-nav-email">{{ $user->email }}</span>
+            @endif
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit">Sign out</button>
+            </form>
+        </div>
+    </details>
 </nav>

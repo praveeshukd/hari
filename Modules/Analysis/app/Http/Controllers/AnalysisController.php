@@ -42,10 +42,6 @@ class AnalysisController extends Controller
     ) {
         $this->authorize('viewAny', Analysis::class);
 
-        if ($request->boolean('trash') && ! $request->user()?->isAdmin()) {
-            abort(403);
-        }
-
         if ($request->ajax() && $request->wantsJson()) {
             return $dataTable->ajax();
         }
@@ -68,20 +64,18 @@ class AnalysisController extends Controller
         $payload['created_by_name'] = $analysis->creator?->name;
         $payload['updated_by_name'] = $analysis->updater?->name;
 
-        if (request()->user()?->isAdmin()) {
-            $payload['activity_logs'] = $analysis->activityLogs()
-                ->with('user:id,name')
-                ->latest()
-                ->limit(20)
-                ->get()
-                ->map(fn ($log) => [
-                    'action' => $log->action,
-                    'user' => $log->user?->name,
-                    'at' => $log->created_at?->toDateTimeString(),
-                    'changes' => $log->changes,
-                ])
-                ->values();
-        }
+        $payload['activity_logs'] = $analysis->activityLogs()
+            ->with('user:id,name')
+            ->latest()
+            ->limit(20)
+            ->get()
+            ->map(fn ($log) => [
+                'action' => $log->action,
+                'user' => $log->user?->name,
+                'at' => $log->created_at?->toDateTimeString(),
+                'changes' => $log->changes,
+            ])
+            ->values();
 
         return response()->json($payload);
     }

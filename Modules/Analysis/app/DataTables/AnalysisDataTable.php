@@ -184,7 +184,7 @@ class AnalysisDataTable extends DataTable
 
     protected function isTrashView(): bool
     {
-        return $this->isSheet() && request()->boolean('trash') && auth()->user()?->isAdmin();
+        return $this->isSheet() && request()->boolean('trash');
     }
 
     protected function filterScript(): string
