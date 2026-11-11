@@ -675,11 +675,6 @@ table.dataTable.hover tbody tr:hover > td {
   min-width: 0;
 }
 
-.mobile-sheet-date-ico {
-  font-size: 0.75rem;
-  line-height: 1;
-}
-
 .mobile-sheet-date strong {
   font-size: 0.72rem;
   font-weight: 700;

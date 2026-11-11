@@ -599,7 +599,6 @@ function renderMobileAnalysisList() {
                 '<input type="checkbox" class="row-checkbox mobile-row-checkbox" value="' + id + '"' + (checked ? ' checked' : '') + ' aria-label="Select record ' + id + '">' +
             '</label>' +
             '<div class="mobile-sheet-date">' +
-                '<span class="mobile-sheet-date-ico" aria-hidden="true">📅</span>' +
                 '<strong>' + date.main + '</strong>' +
                 (date.sub ? '<span>' + date.sub + '</span>' : '') +
             '</div>' +
