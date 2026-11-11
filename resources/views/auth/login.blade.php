@@ -40,7 +40,6 @@
             <div class="form-group">
                 <label for="email">Email Address</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">✉</span>
                     <input
                         type="email"
                         id="email"
@@ -60,8 +59,7 @@
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <div class="input-wrapper" style="position:relative;">
-                    <span class="input-icon">🔒</span>
+                <div class="input-wrapper">
                     <input
                         type="password"
                         id="password"
@@ -70,13 +68,7 @@
                         placeholder="Your password"
                         required
                         autocomplete="current-password"
-                        style="padding-right:3rem;"
                     >
-                    <button type="button" id="toggle-password" onclick="togglePassword()"
-                        style="position:absolute;right:0.9rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--clr-text-faint);font-size:1rem;padding:0;line-height:1;"
-                        aria-label="Toggle password visibility">
-                        👁
-                    </button>
                 </div>
                 @error('password')
                     <div class="invalid-feedback" id="password-error">⚠ {{ $message }}</div>
@@ -108,19 +100,6 @@
 
 @section('scripts')
 <script>
-function togglePassword() {
-    const input = document.getElementById('password');
-    const btn   = document.getElementById('toggle-password');
-    if (input.type === 'password') {
-        input.type = 'text';
-        btn.textContent = '🙈';
-    } else {
-        input.type = 'password';
-        btn.textContent = '👁';
-    }
-}
-
-// Button loading state
 document.getElementById('login-form')?.addEventListener('submit', function() {
     const btn = document.getElementById('login-submit-btn');
     btn.disabled = true;

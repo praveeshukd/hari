@@ -44,7 +44,6 @@
             <div class="form-group">
                 <label for="name">Full Name</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">👤</span>
                     <input
                         type="text"
                         id="name"
@@ -65,7 +64,6 @@
             <div class="form-group">
                 <label for="email">Email Address</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">✉</span>
                     <input
                         type="email"
                         id="email"
@@ -86,7 +84,6 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">🔒</span>
                         <input
                             type="password"
                             id="password"
@@ -113,7 +110,6 @@
                 <div class="form-group">
                     <label for="password_confirmation">Confirm Password</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">🔒</span>
                         <input
                             type="password"
                             id="password_confirmation"
@@ -137,7 +133,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary btn-full" id="register-submit-btn">
-                🚀 Create Free Account
+                Create Free Account
             </button>
         </form>
 

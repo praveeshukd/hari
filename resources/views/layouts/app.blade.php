@@ -38,7 +38,7 @@
                 <button type="submit" class="btn btn-ghost btn-sm" id="nav-logout-btn">Sign Out</button>
             </form>
         @else
-            <a href="{{ route('login') }}"    class="btn btn-ghost btn-sm"   id="nav-login-btn">Sign In</a>
+            <a href="{{ route('login') }}" class="btn btn-ghost btn-sm" id="nav-login-btn">Sign In</a>
             <a href="{{ route('register') }}" class="btn btn-primary btn-sm" id="nav-register-btn">Get Started</a>
         @endauth
     </div>
